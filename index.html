@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Mercado Medieval</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="theme_twitch.css">
+    <link rel="icon" type="image/x-icon" href="icons/favicon.ico">
+</head>
+<body>
+    <div class="container">
+        <!-- Title Banner -->
+        <div class="title-banner">
+            <h1>Calculadora de Mercado Medieval</h1>
+            <p style="font-family: 'Cinzel', serif; color: var(--accent-gold-dim); letter-spacing: 2px;">Fundação • Tear • Simulação de Mercado • Quests</p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-section="main">Calculadora</button>
+            <button class="nav-tab" data-section="chests">Simulador de Baús</button>
+            <button class="nav-tab" data-section="quests">Análise de Quests</button>
+            <button class="nav-tab" data-section="seasonal">Royal Challenge</button>
+        </div>
+
+        <!-- Main Section -->
+        <div id="main-section" class="section-content active">
+
+        <!-- Global Settings Panel -->
+        <div class="global-config-panel">
+            <div class="panel-header">
+                <h2>Configurações Globais do Sistema</h2>
+            </div>
+            <div class="global-config-content">
+                <div class="global-config-grid">
+                    <div class="input-group">
+                        <label>Taxa Global (%) <span class="tooltip-icon" title="Taxa percentual aplicada a todos os cálculos">?</span>:</label>
+                        <input type="number" id="globalTaxRate" placeholder="5" step="0.1" value="5">
+                    </div>
+                    <div class="input-group">
+                        <label>Valor de Reserva (%) <span class="tooltip-icon" title="Percentual de ouro a manter em reserva">?</span>:</label>
+                        <input type="number" id="globalReservePercent" placeholder="0" step="0.1" value="0">
+                    </div>
+                    <div class="input-group">
+                        <label>Gold Disponível para Investimento <span class="tooltip-icon" title="Quantidade total de ouro para investir">?</span>:</label>
+                        <input type="number" id="globalGoldAvailable" placeholder="0" step="1">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-layout">
+            <!-- Left: Item Inventory Grid -->
+            <div class="left-panel">
+                <div class="panel-header">
+                    <h2>📦 Inventário de Itens</h2>
+                </div>
+                <div class="inventory-grid" id="inventoryGrid">
+                    <!-- Items will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Center: Calculator Panel -->
+            <div class="center-panel">
+                <div class="panel-header">
+                    <h2>⚙️ Calculadora</h2>
+                </div>
+                <div class="calculator-content">
+                    <div id="selectedItemInfo" class="selected-item-info">
+                        <p class="info-text">Selecione um item para começar</p>
+                    </div>
+
+                    <div id="calculatorInputs" class="calculator-inputs" style="display: none;">
+                        <div id="materialPricesContainer"></div>
+                        <div class="input-group">
+                            <label>Preço de Venda por Unidade <span class="tooltip-icon" title="Preço que você deseja vender o item. O sistema sugerirá o melhor preço baseado nos custos">?</span>:</label>
+                            <input type="number" id="sellPrice" placeholder="0" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label>Preço do Concorrente <span class="tooltip-icon" title="Preço que seu concorrente está vendendo. Use para comparar e ajustar sua estratégia">?</span>:</label>
+                            <input type="number" id="competitorPrice" placeholder="0" step="0.01">
+                        </div>
+
+                    </div>
+
+                    <div id="calculatorResults" class="calculator-results" style="display: none;">
+                        <div class="result-row">
+                            <span class="result-label">Custo Total <span class="tooltip-icon" title="Custo total para fabricar um item (materiais + custo de produção)">?</span>:</span>
+                            <span class="result-value" id="totalCost">0</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">Preço Sugerido <span class="tooltip-icon" title="Preço recomendado para maximizar lucro mantendo competitividade">?</span>:</span>
+                            <span class="result-value" id="suggestedPrice">0</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">Lucro por Item <span class="tooltip-icon" title="Lucro obtido ao vender um item">?</span>:</span>
+                            <span class="result-value" id="profitPerItem">0</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">Lucro Total <span class="tooltip-icon" title="Lucro total considerando a quantidade de itens">?</span>:</span>
+                            <span class="result-value" id="totalProfit">0</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">Preço Máximo do Material <span class="tooltip-icon" title="Preço máximo que você pode pagar pelo material e ainda ter lucro">?</span>:</span>
+                            <span class="result-value" id="maxMaterialPrice">0</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">Itens Possíveis <span class="tooltip-icon" title="Quantidade de itens que você consegue fabricar com o ouro disponível">?</span>:</span>
+                            <span class="result-value" id="possibleCrafts">0</span>
+                        </div>
+                        <div id="competitorComparison" class="competitor-comparison" style="display: none;">
+                            <div class="result-row">
+                                <span class="result-label">Lucro do Concorrente:</span>
+                                <span class="result-value" id="competitorProfit">0</span>
+                            </div>
+                            <div class="result-row">
+                                <span class="result-label">Sua Vantagem:</span>
+                                <span class="result-value" id="yourAdvantage">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Market Simulation Panel -->
+            <div class="right-panel">
+                <div class="panel-header">
+                    <h2>💰 Simulação de Mercado</h2>
+                </div>
+                <div class="market-content">
+                    <div class="input-group">
+                        <label>Quantidade de Ouro:</label>
+                        <input type="number" id="simGoldAmount" placeholder="0" step="1">
+                    </div>
+                    <div class="input-group">
+                        <label>Reserva %:</label>
+                        <input type="number" id="simReservePercent" placeholder="0" step="0.1" value="0">
+                    </div>
+                    <div class="input-group">
+                        <label>Preço de Venda:</label>
+                        <input type="number" id="simSellPrice" placeholder="0" step="0.01">
+                    </div>
+                    <button class="btn-simulate" id="simulateBtn">Simular</button>
+
+                    <div id="simulationResults" class="simulation-results" style="display: none;">
+                        <div class="result-row">
+                            <span class="result-label">Itens Possíveis:</span>
+                            <span class="result-value" id="simItemsPossible">0</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">Custo Total:</span>
+                            <span class="result-value" id="simTotalCost">0</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">Lucro Total:</span>
+                            <span class="result-value" id="simTotalProfit">0</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">Ouro Após Vender:</span>
+                            <span class="result-value" id="simGoldAfter">0</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="result-label">Materiais Totais Necessários:</span>
+                            <span class="result-value" id="simTotalMaterials">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- New: Best Investments Analysis -->
+        <div class="best-investments-panel">
+            <div class="panel-header">
+                <h2>🎯 Análise de Melhores Investimentos</h2>
+            </div>
+            <div class="investments-content">
+                <!-- Analysis Results -->
+                <div id="investmentsResults" class="investments-results" style="display: none;">
+                    <h3>📊 Resultados da Análise</h3>
+                    <div class="investments-summary">
+                        <div class="summary-stat">
+                            <span class="stat-label">Total de Investimentos:</span>
+                            <span class="stat-value" id="totalInvestmentsCount">0</span>
+                        </div>
+                        <div class="summary-stat">
+                            <span class="stat-label">Lucro Total Estimado:</span>
+                            <span class="stat-value" id="totalEstimatedProfit">0</span>
+                        </div>
+                        <div class="summary-stat">
+                            <span class="stat-label">Investimento Total:</span>
+                            <span class="stat-value" id="totalInvestmentAmount">0</span>
+                        </div>
+                        <div class="summary-stat">
+                            <span class="stat-label">Retorno sobre Investimento:</span>
+                            <span class="stat-value" id="roiPercentage">0%</span>
+                        </div>
+                    </div>
+
+                    <div class="investments-table-container">
+                        <table class="investments-table" id="investmentsTable">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Quantidade</th>
+                                    <th>Preço de Venda</th>
+                                    <th>Lucro/Item</th>
+                                    <th>Lucro Total</th>
+                                    <th>Investimento</th>
+                                    <th>% do Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="investmentsTableBody">
+                                <!-- Table rows will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="shopping-list-section" style="margin-top: 30px;">
+                        <h3 style="color: var(--accent-gold); margin-bottom: 15px;">📋 Lista de Compras</h3>
+                        <p style="color: var(--text-dim); font-size: 12px; margin-bottom: 15px;">Quantidade total de materiais que você precisa comprar para produzir todos os itens recomendados:</p>
+                        <div id="shoppingListContainer" style="background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 5px; padding: 15px;">
+                            <!-- Shopping list will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Button -->
+                <button class="btn-analyze" id="analyzeBtn">Analisar Melhores Investimentos</button>
+            </div>
+        </div>
+
+
+
+        <!-- Bottom: Results Log -->
+        <div class="bottom-panel">
+            <div class="panel-header">
+                <h2>📋 Log de Resultados</h2>
+                <button class="btn-clear" id="clearLogBtn">Limpar Log</button>
+            </div>
+            <div class="log-content" id="logContent">
+                <p class="log-entry">Pronto para calcular...</p>
+            </div>
+        </div>
+
+        <!-- Add Recipe Modal -->
+        <div class="modal" id="addRecipeModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Adicionar Nova Receita</h2>
+                    <button class="modal-close" id="closeModalBtn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <label>Nome da Receita:</label>
+                        <input type="text" id="recipeName" placeholder="Digite o nome da receita">
+                    </div>
+                    <div class="input-group">
+                        <label>Arquivo do Ícone:</label>
+                        <input type="text" id="recipeIcon" placeholder="ex: meu_item.png">
+                    </div>
+                    <div class="input-group">
+                        <label>Custo de Produção:</label>
+                        <input type="number" id="recipeCost" placeholder="0" step="1">
+                    </div>
+                    <div class="input-group">
+                        <label>Materiais (formato: nome:quantidade, nome:quantidade):</label>
+                        <textarea id="recipeMaterials" placeholder="minério_ferro:2, antracite:1" rows="4"></textarea>
+                    </div>
+                    <button class="btn-save" id="saveRecipeBtn">Salvar Receita</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Recipe Button -->
+        <button class="btn-add-recipe" id="addRecipeBtn">+ Adicionar Receita</button>
+        </div>
+        <!-- End Main Section -->
+
+        <!-- Quests Section -->
+        <div id="quests-section" class="section-content">
+            <div class="quest-analysis-panel">
+                <div class="panel-header">
+                    <h2>🏆 Análise de Quests</h2>
+                </div>
+                <div class="quest-analysis-content">
+                    <!-- Quest Configuration -->
+                    <div class="quest-config-section">
+                        <h3>⚙️ Configuração de Preços de Itens</h3>
+                        <p style="color: var(--text-dim); font-size: 12px; margin-bottom: 15px;">Digite o preço unitário de cada item no mercado para calcular o lucro das quests:</p>
+                        <div class="quest-prices-grid" id="questPricesGrid">
+                            <!-- Price inputs will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Analysis Configuration -->
+                    <div class="quest-config-section">
+                        <h3>📊 Análise de Quests</h3>
+                        <div class="input-group">
+                            <label>Ouro Disponível para Quests <span class="tooltip-icon" title="Quantidade de ouro que você quer gastar em quests">?</span>:</label>
+                            <input type="number" id="questGoldAvailable" placeholder="0" step="1">
+                        </div>
+                        <div class="input-group">
+                            <label>Quantidade de Contas <span class="tooltip-icon" title="Número de contas que você vai usar para fazer as quests">?</span>:</label>
+                            <input type="number" id="questAccountsCount" placeholder="1" step="1" value="1">
+                        </div>
+                        <div class="input-group">
+                            <label>Filtrar por Lucro Mínimo <span class="tooltip-icon" title="Mostrar apenas quests com lucro acima deste valor">?</span>:</label>
+                            <input type="number" id="questMinProfit" placeholder="0" step="1" value="0">
+                        </div>
+                        <button class="btn-analyze-quests" id="analyzeQuestsBtn">Analisar Quests</button>
+                    </div>
+
+                    <!-- Quest Results -->
+                    <div id="questResults" class="quest-results" style="display: none;">
+                        <h3>📊 Resultados da Análise de Quests</h3>
+                        
+                        <div class="quest-summary">
+                            <div class="summary-stat">
+                                <span class="stat-label">Total de Quests Recomendadas:</span>
+                                <span class="stat-value" id="totalQuestsCount">0</span>
+                            </div>
+                            <div class="summary-stat">
+                                <span class="stat-label">Lucro por Conta:</span>
+                                <span class="stat-value" id="questProfitPerAccount">0</span>
+                            </div>
+                            <div class="summary-stat">
+                                <span class="stat-label">Investimento Total:</span>
+                                <span class="stat-value" id="questTotalInvestment">0</span>
+                            </div>
+                            <div class="summary-stat">
+                                <span class="stat-label">Retorno sobre Investimento:</span>
+                                <span class="stat-value" id="questROI">0%</span>
+                            </div>
+                            <div class="summary-stat" style="background: linear-gradient(135deg, #2a0000 0%, #1a1a1a 100%); border: 1px solid var(--accent-gold);">
+                                <span class="stat-label" style="color: #ffd700; font-weight: bold;">Lucro Total (Todas as Contas):</span>
+                                <span class="stat-value" id="questConsolidatedProfit" style="color: #ffd700; font-size: 1.4em;">0</span>
+                            </div>
+                        </div>
+
+                        <div class="quest-table-container">
+                            <table class="quest-table" id="questTable">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Qtd</th>
+                                        <th>Preço Unit</th>
+                                        <th>Custo Total</th>
+                                        <th>Lucro Quest</th>
+                                        <th>Lucro Líquido</th>
+                                        <th>ROI %</th>
+                                        <th>Vezes</th>
+                                        <th>Investimento</th>
+                                        <th>Lucro Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="questTableBody">
+                                    <!-- Table rows will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Quests Section -->
+
+        <!-- Chests Section -->
+        <div id="chests-section" class="section-content">
+            <div class="chests-panel">
+                <div class="panel-header">
+                    <h2>💎 Simulador de Baús</h2>
+                </div>
+                <div class="chests-content">
+                    <!-- Chest Configuration -->
+                    <div class="chests-config-section">
+                        <h3>⚡ Preços das Chaves de Baús</h3>
+                        <div class="chests-prices-grid" id="chestPricesContainer">
+                            <!-- Chest price inputs will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Item Prices Configuration -->
+                    <div class="chests-config-section">
+                        <h3>💰 Preços dos Itens por Raridade</h3>
+                        <div class="items-prices-container" id="itemPricesContainer">
+                            <!-- Item price inputs will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Simulation Configuration -->
+                    <div class="chests-config-section">
+                        <h3>🎲 Configuração da Simulação</h3>
+                        <div class="input-group">
+                            <label>Número de Simulações <span class="tooltip-icon" title="Quantidade de simulações para executar">?</span>:</label>
+                            <input type="number" id="simCount" placeholder="10000" step="1000" value="10000">
+                        </div>
+                        <button class="btn-simulate" id="runChestSimulation">Rodar Simulação</button>
+                    </div>
+
+                    <!-- Simulation Results -->
+                    <div id="chestResultsContainer" class="chest-results-container" style="display: none;">
+                        <!-- Results will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Chests Section -->
+
+        <!-- Seasonal Event Section -->
+        <div id="seasonal-section" class="section-content">
+            <!-- Content will be populated by script-seasonal.js -->
+        </div>
+        <!-- End Seasonal Event Section -->
+    </div>
+
+    <script src="script-investments.js"></script>
+    <script src="script.js"></script>
+    <script src="script-quests.js"></script>
+    <script src="script-chests.js"></script>
+    <script src="script-seasonal.js"></script>
+    <script src="script-navigation.js"></script>
+</body>
+</html>
